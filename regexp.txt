@@ -1,0 +1,10 @@
+Usage:	m, _ := regexp.MatchString($EXP, $TARGET)
+
+$EXP
+number		"^[0-9]+$"
+Chinese		"^\\p{Han}+$"
+English		"^[a-zA-Z]+$"
+E-mail		"^([\w\.\_]{2,10})@(\w{1,}).([a-z]{2,4})$"
+Phone-number	"^(1[3|4|5|8][0-9]\d{4,8})$"
+ID Card		"^(\d{17})([0-9]|X)$"
+
