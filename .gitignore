@@ -18,3 +18,4 @@
 main
 go.mod
 go.sum
+*.db
