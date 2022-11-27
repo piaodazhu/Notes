@@ -1,8 +1,4 @@
-# Databases
-relational: sqlite mysql
-non-relational: redis mongodb
-
-# sqlite3:
+# SQL quick start (sqlite3)
 ## A. create & drop
 ```sql
 server01@server01:~/golearning/my-Go/Web/database$ sqlite3 testDB.db
@@ -60,6 +56,7 @@ sqlite> drop table tobedeleted;
 sqlite> .tables
 company     department
 ```
+
 ## B. insert & select
 ```sql
 sqlite> insert into company (id, name, age, address, salary)
@@ -322,7 +319,7 @@ emp_id  name   dept
 7       James  Finance 
 ```
 
-# G. union
+## G. union
 
 ```sql
 sqlite> select * from company where id > 3 union select * from company where salary >= 30000;
@@ -366,3 +363,88 @@ count() min() max() avg() sum() random() abs() upper() lower() length()
 
 ## J. index & indexed by
 
+```sql
+sqlite> create index salary_index on company (salary);
+sqlite> .indexes
+salary_index                   sqlite_autoindex_department_1
+sqlite_autoindex_company_1   
+sqlite> .indexes company 
+salary_index                sqlite_autoindex_company_1
+sqlite> select salary from company where salary > (select avg(salary) from company);
+salary 
+-------
+45000.0
+65000.0
+85000.0
+sqlite> explain query plan select salary from company where salary > (select avg(salary) from company);
+QUERY PLAN
+|--SEARCH company USING COVERING INDEX salary_index (salary>?)
+`--SCALAR SUBQUERY 1
+   `--SCAN company USING COVERING INDEX salary_index
+sqlite> SELECT * FROM COMPANY INDEXED BY salary_index WHERE salary > 5000;
+```
+
+## K. view and transaction
+```sql
+sqlite> create view company_view as select id, name, age from company;
+sqlite> .tables
+company       company_view  department  
+sqlite> select * from company_view 
+   ...> ;
+id  name   age
+--  -----  ---
+1   Paul   32 
+2   Allen  25 
+3   Teddy  23 
+4   Mark   25 
+5   David  27 
+6   Kim    2
+
+sqlite> begin;
+sqlite> delete from company where age = 25;
+sqlite> insert into company values (10, 'Bob', 35, 'China', 30000);
+sqlite> commit;
+sqlite> select * from company;
+id  name   age  address     salary 
+--  -----  ---  ----------  -------
+1   Paul   32   California  20000.0
+3   Teddy  23   Norway      20000.0
+5   David  27   Texas       85000.0
+6   Kim    22   South-Hall  45000.0
+10  Bob    35   China       30000.0
+```
+
+## L. autoincrement
+
+```sql
+drop view company_view ;
+sqlite> drop table company;
+sqlite> create table company (
+   ...> id int primary key autoincrement,
+   ...> name text not null,
+   ...> age int not null,
+   ...> address char(50) default 'unknown',
+   ...> salary real default 0
+   ...> );
+Error: in prepare, AUTOINCREMENT is only allowed on an INTEGER PRIMARY KEY (1)
+sqlite> create table company (
+   ...> id integer primary key autoincrement,
+   ...> name text not null,
+   ...> age int not null,
+   ...> address char(50) default 'unknown',
+   ...> salary real default 0
+   ...> );
+sqlite> insert into company (NAME,AGE,ADDRESS,SALARY) values ('Paul', 32, 'California', 20000.00);
+sqlite> insert into company (NAME,AGE,ADDRESS,SALARY) values ('Allen', 25, 'Texas', 15000.00 );
+sqlite> insert into company (NAME,AGE,ADDRESS,SALARY) values ('Teddy', 23, 'Norway', 20000.00 );
+sqlite> insert into company (NAME,AGE,ADDRESS,SALARY) values ('Mark', 25, 'Rich-Mond', 65000.00);
+sqlite> insert into company (NAME,AGE,ADDRESS,SALARY) values ('David', 27, 'Texas', 85000.00);
+sqlite> select * from company;
+id  name   age  address     salary 
+--  -----  ---  ----------  -------
+1   Paul   32   California  20000.0
+2   Allen  25   Texas       15000.0
+3   Teddy  23   Norway      20000.0
+4   Mark   25   Rich-Mond   65000.0
+5   David  27   Texas       85000.0
+```
