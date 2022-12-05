@@ -1,0 +1,1 @@
+session is not directly supported by Golang. So learn the basic of idea of session, then learn a web framework.
