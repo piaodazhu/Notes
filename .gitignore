@@ -19,3 +19,5 @@ main
 go.mod
 go.sum
 *.db
+tmp
+tmp.go
