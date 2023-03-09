@@ -39,18 +39,24 @@ Ingress，需要负载均衡插件(如METALLB)
 
 ## 操作
 总体查看
+
+```sh
 kubectl get nodes
 kubectl get pods (-o wide可看到pod在节点上如何分配)
 kubectl get deployment
+```
 
 pod查看
+```sh
 kubectl get all
 kubectl describe pod podname
 kubectl describe service podname
 kubectl logs podname
 kubectl exec -it podname -- bash
+```
 
 部署
+```sh
 kubectl apply -f xxx.yaml
 kubectl scale depolyment deployname --replicas=N
 kubectl port-forward pod-name localport:podport
@@ -58,13 +64,18 @@ kubectl delete deployment deployname
 kubectl rollout restart deployment deployname
 kubectl pause deployment deployname
 kubectl resume deployment deployname
+```
 
 版本管理
+```sh
 kubectl rollout history deployment deployname
 kubectl rollout undo deployment deployname (--to-revision=x)
+```
 
 服务管理
+```sh
 kubectl apply -f xxxservice.yaml
+```
 
 ## redis集群部署实践
 ### 实践环境
