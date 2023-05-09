@@ -1,2 +1,2 @@
-# my-Go
-In this repository I started learning Golang. Some links, codes, repos will be put in this repo.
+# Nodes
+Study notes and some resources.
