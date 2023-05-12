@@ -1,0 +1,51 @@
+A. Input Format
+AVFormatContext *avfc = avformat_alloc_context()
+-> avformat_open_input(avfc, url, NULL, NULL)
+-> avformat_find_stream_info(*avfc, NULL)
+(get nb_stream, streams, duration, bit_rate...)
+AVRational input_framerate = av_guess_frame_rate(avfc, avfc->videostream, NULL)
+
+B. Input Stream
+:Open decoder and save decoder parameters
+AVCodec *avc = avcodec_find_decoder(stream[i]->codecpar->codec_id)
+->ACCodecContext *avcc = avcodec_alloc_context3(*avc)
+->avcodec_parameters_to_context(*avcc, stream[i]->codecpar)
+->avcodec_open2(*avcc, *avc, NULL)
+
+C. Output Format
+avformat_alloc_output_context2(*avfc, NULL, NULL, url)
+if (avfc->oformat->flags & AVFMT_GLOBALHEADER) {
+    avfc->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+}
+if (!(avfc->oformat->flags & AVFMT_NOFILE)) {
+    avio_open(&avfc->pb, filename, AVIO_FLAG_WRITE)
+}
+AVDictionary* opts 
+-> av_dict_set(&opts, key, value, 0)
+-> avformat_write_header(avfc, opt)
+-> ...Packet and Frame
+-> av_write_trailer(avfc)
+
+D. Output Stream
+:Set encoder parameters and open encoder
+AVStream *avs = avformat_new_stream(avfc, NULL)
+-> AVCodec *avc = avcodec_find_encoder_by_name(name)
+-> AVCodecContext *avcc = avcodec_alloc_context3(avc)
+-> av_opt_set(avcc->priv_data, key, value, 0)
+-> avcodec_open2(avcc, avc, NULL)
+-> avcodec_parameters_from_context(avs->codecpar, avcc)
+
+E. Frame and Packet
+AVFrame *input_frame = av_frame_alloc()
+AVPacket *input_packet = av_packet_alloc()
+AVPacket *output_packet = av_packet_alloc()
+av_read_frame(input_avfc, input_packet)
+->avcodec_send_packet(avcc, input_packet)
+->avcodec_receive_frame(avcc, input_frame)
+->avcodec_send_frame(encoder_avcc, input_frame)
+->avcodec_receive_packet(encoder_avcc, output_packet)
+->av_packet_rescale_ts(output_packet, input_timebase, output_timebase)
+->av_interleaved_write_frame(output_avfc, output_packet)
+-> av_packet_unref(output_packet)
+-> av_frame_unref(input_frame)
+-> av_packet_unref(input_packet)
